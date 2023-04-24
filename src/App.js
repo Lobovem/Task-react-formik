@@ -1,69 +1,66 @@
 import React from 'react';
-import { useFormik } from 'formik';
+import { Formik, Form, Field } from 'formik';
 
-const validate = (values) => {
-  const errors = {};
-  if (!values.firstName) {
-    errors.firstName = 'Required';
-  } else if (values.firstName.length > 15) {
-    errors.firstName = 'Must be 15 characters or less';
+function validateUsername(value) {
+  let error;
+  if (value === 'admin') {
+    error = 'Nice try!';
   }
+  return error;
+}
 
-  if (!values.lastName) {
-    errors.lastName = 'Required';
-  } else if (values.lastName.length > 20) {
-    errors.lastName = 'Must be 20 characters or less';
+function validateEmail(value) {
+  let error;
+  if (!value) {
+    error = 'Required';
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+    error = 'Invalid email address';
   }
+  return error;
+}
 
-  if (!values.email) {
-    errors.email = 'Required';
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = 'Invalid email address';
+function validatePhone(value) {
+  let error;
+  if (!value) {
+    error = 'Required';
+  } else if (!/^(\d[-\s]?){11}\d$/i.test(value)) {
+    error = 'Invalid phone number';
   }
+  return error;
+}
 
-  if (!values.telephone) {
-    errors.telephone = 'Required';
-  } else if (!/^(\d[-\s]?){11}\d$/i.test(values.telephone)) {
-    errors.telephone = 'Invalid telephone number';
-  }
-  return errors;
-};
+export const FieldLevelValidationExample = () => (
+  <div>
+    <h1>Signup</h1>
+    <Formik
+      initialValues={{
+        username: '',
+        email: '',
+        phone: '',
+      }}
+      onSubmit={(values) => {
+        alert(JSON.stringify(values, null, 2));
+      }}
+    >
+      {({ errors, touched, validateForm }) => (
+        <Form>
+          <label htmlFor="username">First Name</label>
+          <Field id="username" name="username" validate={validateUsername} />
+          {errors.username && touched.username && <div>{errors.username}</div>}
 
-const SignupForm = () => {
-  const formik = useFormik({
-    initialValues: {
-      firstName: '',
-      lastName: '',
-      telephone: '',
-      email: '',
-    },
-    validate,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
-  });
+          <label htmlFor="email">Email</label>
+          <Field id="email" name="email" validate={validateEmail} />
+          {errors.email && touched.email && <div>{errors.email}</div>}
 
-  return (
-    <form onSubmit={formik.handleSubmit}>
-      <label htmlFor="firstName">First Name</label>
-      <input id="firstName" name="firstName" type="text" onChange={formik.handleChange} value={formik.values.firstName} />
-      {formik.errors.firstName ? <div>{formik.errors.firstName}</div> : null}
+          <label htmlFor="phone">Phone</label>
+          <Field id="phone" name="phone" validate={validatePhone} />
+          {errors.phone && touched.phone && <div>{errors.phone}</div>}
 
-      <label htmlFor="lastName">Last Name</label>
-      <input id="lastName" name="lastName" type="text" onChange={formik.handleChange} value={formik.values.lastName} />
-      {formik.errors.lastName ? <div>{formik.errors.lastName}</div> : null}
+          <button type="submit">Submit</button>
+        </Form>
+      )}
+    </Formik>
+  </div>
+);
 
-      <label htmlFor="telephone">Telephone</label>
-      <input id="telephone" name="telephone" type="tel" onChange={formik.handleChange} value={formik.values.telephone} />
-      {formik.errors.telephone ? <div>{formik.errors.telephone}</div> : null}
-
-      <label htmlFor="email">Email Address</label>
-      <input id="email" name="email" type="email" onChange={formik.handleChange} value={formik.values.email} />
-      {formik.errors.email ? <div>{formik.errors.email}</div> : null}
-
-      <button type="submit">Submit</button>
-    </form>
-  );
-};
-
-export default SignupForm;
+export default FieldLevelValidationExample;
